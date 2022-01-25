@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Приёмная комиссия</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mx-auto">
+            <a class="navbar-brand" href="/">Приёмная комиссия</a>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/results">Результаты</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/statistics">Статистика</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Добавить
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/add_specialty">Направление подготовки</a></li>
+                <li><a class="dropdown-item" href="/add_exam">Экзамен</a></li>
+                <li><a class="dropdown-item" href="/add_enrollee">Абитуриент</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/add_request">Создать заявку</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    {% if not data.submitted or not data.success %}
+        {% if data.submitted %}
+        <div class="alert alert-danger mx-auto" role="alert" style="width:30%">
+            Произошла ошибка
+        </div>
+        {% endif %}
+    <div class="mx-auto" style="width:40%">
+        <h3>Выберите направление подготовки</h3>
+        <form method="POST" action="/results" id="results">
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="specialty">Направление подготовки</label>
+                <select name="specialty" id="specialty">
+                    {% for specialty in data.specialty %}
+                        <option value="{{specialty[0]}}">{{specialty[1]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+        <button type="submit" class="btn btn-primary" form="results">Отправить</button>
+    </div>
+    {% endif %}
+    {% if data.success%}
+        <table class="table table-bordered">
+            <thead>
+                <th scope="col">ФИО</th>
+                {% for exam in data.exams %}
+                <th scope="col">{{ exam[1] }}</th>
+                {% endfor %}
+                <th scope="col">Бонус</th>
+                <th scope="col">Сумма</th>
+            </thead>
+        <tbody>
+            {% for row in data.res %}
+                <tr>
+                    {% for col in row %}
+                        <td>{{ col }}</td>
+                    {% endfor %}
+                    <td>
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                          Ред.
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Редактировать</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                  <form action="/edit" method="POST" id="edit">
+                                  <div class="input-group mb-3">
+                                        <label class="input-group-text" for="name">ФИО</label>
+                                        <input type="text" id="name" value="{{ row[0] }}" readonly name="name">
+                                  </div>
+                                      {% for exam in data.exams %}
+                                        <div class="input-group mb-3">
+                                            <label class="input-group-text" id="{{ exam[0] }}">{{ exam[1] }}</label>
+                                            <input type="number" id="exam{{ exam[0] }}" name="exam{{ exam[0] }}" min="0" max="100">
+                                        </div>
+                                     {% endfor %}
+                                  </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                <button type="submit" name="edit" class="btn btn-warning" form="edit"> Редактировать</button>
+                                <button type="submit" name="del" class="btn btn-danger" form="edit">Удалить</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    {% endif %}
+    <script src="static/js/bootstrap.min.js"></script>
+</body>
+</html>
